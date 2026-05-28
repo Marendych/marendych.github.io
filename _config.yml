@@ -1,0 +1,4 @@
+# Include hidden directories like .well-known for AASA file
+include:
+  - .well-known
+plugins: []

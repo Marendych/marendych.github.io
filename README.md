@@ -1,10 +1,10 @@
 # marendych.github.io
 
-Landing pages + Apple App Site Association (AASA) for **Forma** iOS app.
+Landing pages + Apple App Site Association (AASA) for **Corio** iOS app.
 
 ## What's here
 
-- `.well-known/apple-app-site-association` — AASA file for iOS Universal Links (`/invite/*`, `/profile/*` paths open Forma directly when installed).
+- `.well-known/apple-app-site-association` — AASA file for iOS Universal Links (`/invite/*`, `/profile/*` paths open Corio directly when installed).
 - `404.html` — universal landing that:
   - matches `/profile/:username` and `/invite/:code`
   - tries to open `forma://...` deep link

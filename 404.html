@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Forma</title>
-<meta property="og:title" content="Forma — Recovery & Training" id="og-title">
+<title>Corio</title>
+<meta property="og:title" content="Corio — Recovery & Training" id="og-title">
 <meta property="og:description" content="HRV, сон, тренування — у тебе в кишені." id="og-desc">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://apps.apple.com/assets/web/app-store-app-icon.svg">
@@ -50,10 +50,10 @@ small{color:rgba(255,255,255,0.35);font-size:12px;display:block;margin-top:24px}
 <body>
 <div class="card">
   <div class="logo">F</div>
-  <h1 id="title">Forma</h1>
+  <h1 id="title">Corio</h1>
   <p class="subtitle" id="subtitle">HRV, сон, тренування — у тебе в кишені.</p>
   <a class="btn btn-primary" id="open-app" href="https://apps.apple.com/app/id6766167022">Скачати в App Store</a>
-  <a class="btn btn-secondary hide" id="open-app2" href="#">Відкрити в Forma</a>
+  <a class="btn btn-secondary hide" id="open-app2" href="#">Відкрити в Corio</a>
   <div class="spinner hide" id="spin"></div>
   <small id="hint"></small>
 </div>
@@ -79,32 +79,32 @@ small{color:rgba(255,255,255,0.35);font-size:12px;display:block;margin-top:24px}
 
   function showFallback(){
     spin.classList.add('hide');
-    hint.textContent = "Якщо нічого не сталось — установи Forma";
+    hint.textContent = "Якщо нічого не сталось — установи Corio";
   }
 
   function handleProfile(username){
     deepLink = "forma://profile/" + encodeURIComponent(username);
     titleEl.textContent = "@" + username;
-    subEl.textContent = "Дивись recovery, сон і тренування у Forma.";
-    ogTitle.setAttribute('content', "@" + username + " on Forma");
-    ogDesc.setAttribute('content', "Дивись recovery, сон і тренування @" + username + " у Forma.");
+    subEl.textContent = "Дивись recovery, сон і тренування у Corio.";
+    ogTitle.setAttribute('content', "@" + username + " on Corio");
+    ogDesc.setAttribute('content', "Дивись recovery, сон і тренування @" + username + " у Corio.");
     fetch(SUPABASE_URL + "/rest/v1/users?username=eq." + encodeURIComponent(username) + "&select=display_name&limit=1",
       { headers: { apikey: SUPABASE_ANON, Authorization: "Bearer " + SUPABASE_ANON } })
       .then(function(r){ return r.json(); })
       .then(function(rows){
         if (rows && rows[0] && rows[0].display_name) {
           titleEl.textContent = rows[0].display_name;
-          ogTitle.setAttribute('content', rows[0].display_name + " on Forma");
+          ogTitle.setAttribute('content', rows[0].display_name + " on Corio");
         }
       }).catch(function(){});
   }
 
   function handleInvite(code){
     deepLink = "forma://invite/" + encodeURIComponent(code);
-    titleEl.textContent = "Тебе запрошують у Forma";
+    titleEl.textContent = "Тебе запрошують у Corio";
     subEl.textContent = "HRV, сон, тренування, порівняння з друзями.";
-    ogTitle.setAttribute('content', "Запрошення в Forma");
-    ogDesc.setAttribute('content', "Тебе запрошують в Forma — recovery & training app.");
+    ogTitle.setAttribute('content', "Запрошення в Corio");
+    ogDesc.setAttribute('content', "Тебе запрошують в Corio — recovery & training app.");
   }
 
   if (profileMatch) handleProfile(decodeURIComponent(profileMatch[1]));
@@ -112,11 +112,11 @@ small{color:rgba(255,255,255,0.35);font-size:12px;display:block;margin-top:24px}
 
   if (!deepLink) return; // not a known route — index App Store CTA stays
 
-  document.title = titleEl.textContent + " — Forma";
+  document.title = titleEl.textContent + " — Corio";
   openBtn.textContent = "Скачати в App Store";
   openBtn.href = APP_STORE;
   openBtn2.href = deepLink;
-  openBtn2.textContent = "Відкрити в Forma";
+  openBtn2.textContent = "Відкрити в Corio";
   openBtn2.classList.remove('hide');
 
   // iOS auto-redirect attempt
@@ -134,7 +134,7 @@ small{color:rgba(255,255,255,0.35);font-size:12px;display:block;margin-top:24px}
       }
     }, 1500);
   } else {
-    hint.textContent = "Установи Forma на iPhone щоб відкрити цей лінк";
+    hint.textContent = "Установи Corio на iPhone щоб відкрити цей лінк";
   }
 })();
 </script>

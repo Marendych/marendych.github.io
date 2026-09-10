@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Corio</title>
-<meta property="og:title" content="Corio — Recovery & Training" id="og-title">
-<meta property="og:description" content="HRV, сон, тренування — у тебе в кишені." id="og-desc">
+<meta property="og:title" content="Corio — Recovery &amp; Training" id="og-title">
+<meta property="og:description" content="HRV, sleep and recovery, in your pocket." id="og-desc">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://apps.apple.com/assets/web/app-store-app-icon.svg">
 <style>
@@ -23,7 +23,7 @@ body{
   border-radius:22px;
   background:linear-gradient(135deg,#FF9A4D 0%,#E8B04B 60%,#8F6FBF 100%);
   display:flex;align-items:center;justify-content:center;
-  font-size:36px;font-weight:700;color:#0a0b0f;
+  font-size:36px;font-weight:700;color:#14100E;
   box-shadow:0 8px 40px rgba(255,154,77,0.35);
 }
 h1{font-size:24px;font-weight:600;margin-bottom:8px;letter-spacing:-0.02em}
@@ -31,11 +31,24 @@ p.subtitle{color:rgba(255,255,255,0.6);font-size:15px;line-height:1.5;margin-bot
 .btn{
   display:block;width:100%;padding:16px;border-radius:14px;
   font-size:16px;font-weight:600;text-decoration:none;margin-bottom:12px;
-  transition:transform 0.1s;
+  transition:transform 0.1s;cursor:pointer;border:0;
+  font-family:inherit;
 }
 .btn:active{transform:scale(0.98)}
 .btn-primary{background:#FF9A4D;color:#14100E}
 .btn-secondary{background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.12)}
+.steps{
+  text-align:left;margin-top:28px;padding-top:24px;
+  border-top:1px solid rgba(255,255,255,0.08);
+}
+.step{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start}
+.step-n{
+  flex:0 0 22px;height:22px;border-radius:50%;
+  background:rgba(255,154,77,0.15);color:#FF9A4D;
+  font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-t{font-size:14px;line-height:1.45;color:rgba(255,255,255,0.72)}
 .spinner{
   width:24px;height:24px;margin:16px auto 0;
   border:2px solid rgba(255,255,255,0.1);
@@ -49,93 +62,139 @@ small{color:rgba(255,255,255,0.35);font-size:12px;display:block;margin-top:24px}
 </head>
 <body>
 <div class="card">
-  <div class="logo">F</div>
+  <div class="logo">C</div>
   <h1 id="title">Corio</h1>
-  <p class="subtitle" id="subtitle">HRV, сон, тренування — у тебе в кишені.</p>
-  <a class="btn btn-primary" id="open-app" href="https://apps.apple.com/app/id6766167022">Скачати в App Store</a>
-  <a class="btn btn-secondary hide" id="open-app2" href="#">Відкрити в Corio</a>
+  <p class="subtitle" id="subtitle">HRV, sleep and recovery, in your pocket.</p>
+  <a class="btn btn-primary" id="open-app" href="https://apps.apple.com/app/id6766167022">Get Corio</a>
+  <a class="btn btn-secondary hide" id="open-app2" href="#">Open in Corio</a>
   <div class="spinner hide" id="spin"></div>
+  <div class="steps hide" id="steps">
+    <div class="step"><div class="step-n">1</div><div class="step-t" id="s1"></div></div>
+    <div class="step"><div class="step-n">2</div><div class="step-t" id="s2"></div></div>
+  </div>
   <small id="hint"></small>
 </div>
 <script>
 (function(){
-  var SUPABASE_URL = "https://bflphlugwtzlobsvhhot.supabase.co";
-  var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmbHBobHVnd3R6bG9ic3ZoaG90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0NzIwODQsImV4cCI6MjA2OTA0ODA4NH0.skul2bpkHg_TyP5JmtBBqRm3i2KG-E8-4IO4h4mcRP0";
   var APP_STORE = "https://apps.apple.com/app/id6766167022";
 
+  // Мова сторінки. Реферальні посилання ведуть на США/Британію/Канаду/
+  // Австралію/Нову Зеландію — англійська має бути типовою, інакше людина
+  // з США отримує запрошення українською і закриває вкладку.
+  var nav = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+  var uk = nav.indexOf("uk") === 0 || nav.indexOf("ru") === 0;
+
+  var T = uk ? {
+    tagline:   "HRV, сон і відновлення — у тебе в кишені.",
+    getApp:    "Встановити Corio",
+    openApp:   "Відкрити в Corio",
+    inviteH:   "Тебе запрошують у Corio",
+    inviteS:   "Дивіться відновлення, сон і тренування одне одного.",
+    profileS:  "Дивись відновлення, сон і тренування у Corio.",
+    step1:     "Встанови Corio з App Store.",
+    step2:     "Повернись і натисни це посилання ще раз — вас додасть у друзі автоматично.",
+    notIOS:    "Corio працює на iPhone. Відкрий це посилання з телефона.",
+    copied:    "Код запрошення скопійовано",
+    ogInviteT: "Запрошення в Corio",
+    ogInviteD: "Тебе запрошують у Corio — відновлення й тренування."
+  } : {
+    tagline:   "HRV, sleep and recovery, in your pocket.",
+    getApp:    "Get Corio",
+    openApp:   "Open in Corio",
+    inviteH:   "You've been invited to Corio",
+    inviteS:   "See each other's recovery, sleep and training.",
+    profileS:  "See recovery, sleep and training on Corio.",
+    step1:     "Install Corio from the App Store.",
+    step2:     "Come back and tap this link again — you'll be added as friends automatically.",
+    notIOS:    "Corio is an iPhone app. Open this link on your phone.",
+    copied:    "Invite code copied",
+    ogInviteT: "An invite to Corio",
+    ogInviteD: "You've been invited to Corio — recovery and training."
+  };
+
+  document.documentElement.lang = uk ? "uk" : "en";
+
   var path = window.location.pathname;
-  var deepLink = null;
+  var deepLink = null, inviteCode = null;
   var profileMatch = path.match(/^\/profile\/([^\/]+)\/?$/);
-  var inviteMatch = path.match(/^\/invite\/([^\/]+)\/?$/);
+  var inviteMatch  = path.match(/^\/invite\/([^\/]+)\/?$/);
 
   var titleEl = document.getElementById('title');
-  var subEl = document.getElementById('subtitle');
+  var subEl   = document.getElementById('subtitle');
   var openBtn = document.getElementById('open-app');
-  var openBtn2 = document.getElementById('open-app2');
-  var spin = document.getElementById('spin');
-  var hint = document.getElementById('hint');
+  var openBtn2= document.getElementById('open-app2');
+  var spin    = document.getElementById('spin');
+  var steps   = document.getElementById('steps');
+  var hint    = document.getElementById('hint');
   var ogTitle = document.getElementById('og-title');
-  var ogDesc = document.getElementById('og-desc');
+  var ogDesc  = document.getElementById('og-desc');
 
-  function showFallback(){
-    spin.classList.add('hide');
-    hint.textContent = "Якщо нічого не сталось — установи Corio";
-  }
+  subEl.textContent = T.tagline;
+  openBtn.textContent = T.getApp;
+  ogDesc.setAttribute('content', T.tagline);
 
   function handleProfile(username){
     deepLink = "forma://profile/" + encodeURIComponent(username);
     titleEl.textContent = "@" + username;
-    subEl.textContent = "Дивись recovery, сон і тренування у Corio.";
+    subEl.textContent = T.profileS;
     ogTitle.setAttribute('content', "@" + username + " on Corio");
-    ogDesc.setAttribute('content', "Дивись recovery, сон і тренування @" + username + " у Corio.");
-    fetch(SUPABASE_URL + "/rest/v1/users?username=eq." + encodeURIComponent(username) + "&select=display_name&limit=1",
-      { headers: { apikey: SUPABASE_ANON, Authorization: "Bearer " + SUPABASE_ANON } })
-      .then(function(r){ return r.json(); })
-      .then(function(rows){
-        if (rows && rows[0] && rows[0].display_name) {
-          titleEl.textContent = rows[0].display_name;
-          ogTitle.setAttribute('content', rows[0].display_name + " on Corio");
-        }
-      }).catch(function(){});
+    ogDesc.setAttribute('content', T.profileS);
   }
 
   function handleInvite(code){
+    inviteCode = code;
     deepLink = "forma://invite/" + encodeURIComponent(code);
-    titleEl.textContent = "Тебе запрошують у Corio";
-    subEl.textContent = "HRV, сон, тренування, порівняння з друзями.";
-    ogTitle.setAttribute('content', "Запрошення в Corio");
-    ogDesc.setAttribute('content', "Тебе запрошують в Corio — recovery & training app.");
+    titleEl.textContent = T.inviteH;
+    subEl.textContent = T.inviteS;
+    ogTitle.setAttribute('content', T.ogInviteT);
+    ogDesc.setAttribute('content', T.ogInviteD);
   }
 
-  if (profileMatch) handleProfile(decodeURIComponent(profileMatch[1]));
+  if (profileMatch)     handleProfile(decodeURIComponent(profileMatch[1]));
   else if (inviteMatch) handleInvite(decodeURIComponent(inviteMatch[1]));
 
-  if (!deepLink) return; // not a known route — index App Store CTA stays
+  if (!deepLink) return; // не наш маршрут — лишається звичайна картка застосунку
 
   document.title = titleEl.textContent + " — Corio";
-  openBtn.textContent = "Скачати в App Store";
   openBtn.href = APP_STORE;
   openBtn2.href = deepLink;
-  openBtn2.textContent = "Відкрити в Corio";
-  openBtn2.classList.remove('hide');
+  openBtn2.textContent = T.openApp;
 
-  // iOS auto-redirect attempt
+  // Код у буфер обміну — щоб застосунок міг підхопити його після
+  // встановлення. Пишемо ЛИШЕ за жестом користувача: Safari інакше
+  // мовчки відмовляє.
+  openBtn.addEventListener('click', function(){
+    if (inviteCode && navigator.clipboard && navigator.clipboard.writeText) {
+      try { navigator.clipboard.writeText("corio-invite:" + inviteCode); } catch (e) {}
+    }
+  });
+
   var ua = navigator.userAgent || "";
   var isIOS = /iPad|iPhone|iPod/.test(ua);
-  if (isIOS) {
-    spin.classList.remove('hide');
-    var t = Date.now();
-    window.location.href = deepLink;
-    setTimeout(function(){
-      if (Date.now() - t < 2500 && !document.hidden) {
-        window.location.href = APP_STORE;
-      } else {
-        showFallback();
-      }
-    }, 1500);
-  } else {
-    hint.textContent = "Установи Corio на iPhone щоб відкрити цей лінк";
-  }
+
+  if (!isIOS) { hint.textContent = T.notIOS; return; }
+
+  // Пробуємо відкрити застосунок. Якщо він є — Universal Link уже перехопив
+  // би посилання і ми б сюди не дійшли; це запасний шлях для випадків, коли
+  // лінк відкрився всередині чужого браузера (Instagram, Telegram).
+  //
+  // ⚠️ Раніше тут стояв автоматичний перехід у App Store через 1.5 с. Через
+  // нього людина БЕЗ застосунку — тобто рівно та, заради якої існує
+  // запрошення, — не встигала побачити ні хто її запросив, ні що робити
+  // після встановлення. За пів року: 15 згенерованих кодів, 0 використаних.
+  spin.classList.remove('hide');
+  var t = Date.now();
+  window.location.href = deepLink;
+  setTimeout(function(){
+    spin.classList.add('hide');
+    if (document.hidden || Date.now() - t > 2500) return; // застосунок відкрився
+    openBtn2.classList.remove('hide');
+    if (inviteCode) {
+      document.getElementById('s1').textContent = T.step1;
+      document.getElementById('s2').textContent = T.step2;
+      steps.classList.remove('hide');
+    }
+  }, 1200);
 })();
 </script>
 </body>

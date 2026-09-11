@@ -89,6 +89,7 @@ small{color:rgba(255,255,255,0.35);font-size:12px;display:block;margin-top:24px}
     getApp:    "Встановити Corio",
     openApp:   "Відкрити в Corio",
     inviteH:   "Тебе запрошують у Corio",
+    inviteBy:  "{name} запрошує тебе в Corio",
     inviteS:   "Дивіться відновлення, сон і тренування одне одного.",
     profileS:  "Дивись відновлення, сон і тренування у Corio.",
     step1:     "Встанови Corio з App Store.",
@@ -102,6 +103,7 @@ small{color:rgba(255,255,255,0.35);font-size:12px;display:block;margin-top:24px}
     getApp:    "Get Corio",
     openApp:   "Open in Corio",
     inviteH:   "You've been invited to Corio",
+    inviteBy:  "{name} invites you to Corio",
     inviteS:   "See each other's recovery, sleep and training.",
     profileS:  "See recovery, sleep and training on Corio.",
     step1:     "Install Corio from the App Store.",
@@ -141,6 +143,33 @@ small{color:rgba(255,255,255,0.35);font-size:12px;display:block;margin-top:24px}
     ogDesc.setAttribute('content', T.profileS);
   }
 
+  // Ім'я запрошувача. Сторінка статична (GitHub Pages), тому ім'я питаємо в
+  // edge-функції `link` — вона його вміє діставати з коду (fetchInviter) і з
+  // 11.09.2026 відкрита без JWT. Запит НЕ блокує показ: спершу малюємо
+  // загальний заголовок, ім'я підставляємо, коли (і якщо) прийде відповідь.
+  var NAME_API = "https://bflphlugwtzlobsvhhot.supabase.co/functions/v1/link/invite/";
+
+  function personalize(code){
+    try {
+      var ctrl = new AbortController();
+      setTimeout(function(){ ctrl.abort(); }, 2500);
+      fetch(NAME_API + encodeURIComponent(code), { signal: ctrl.signal })
+        .then(function(r){ return r.ok ? r.text() : null; })
+        .then(function(html){
+          if (!html) return;
+          var m = html.match(/<title>([^<]+)<\/title>/);
+          if (!m) return;
+          // Функція віддає «<Ім'я> запрошує тебе в Corio» / «… invites you to Corio».
+          var name = m[1].split(/ запрошує| invites/)[0].trim();
+          if (!name || name === "Corio" || name.length > 40) return;
+          titleEl.textContent = T.inviteBy.replace("{name}", name);
+          document.title = titleEl.textContent + " — Corio";
+          ogTitle.setAttribute('content', titleEl.textContent);
+        })
+        .catch(function(){ /* мережа лягла — лишається загальний заголовок */ });
+    } catch (e) { /* старий браузер без fetch/AbortController */ }
+  }
+
   function handleInvite(code){
     inviteCode = code;
     deepLink = "forma://invite/" + encodeURIComponent(code);
@@ -148,6 +177,7 @@ small{color:rgba(255,255,255,0.35);font-size:12px;display:block;margin-top:24px}
     subEl.textContent = T.inviteS;
     ogTitle.setAttribute('content', T.ogInviteT);
     ogDesc.setAttribute('content', T.ogInviteD);
+    personalize(code);
   }
 
   if (profileMatch)     handleProfile(decodeURIComponent(profileMatch[1]));

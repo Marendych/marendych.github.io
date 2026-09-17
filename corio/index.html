@@ -180,11 +180,8 @@
   function ping(ev,extra){
     try{
       var body=JSON.stringify({event:ev,distinct_id:"web_"+id,properties:Object.assign({src:src,page:"corio",lang:navigator.language,ua_mobile:/iPhone|iPad/.test(navigator.userAgent)},extra||{})});
-      if(navigator.sendBeacon){
-        navigator.sendBeacon(SB+"/rest/v1/analytics_events?apikey="+KEY,new Blob([body],{type:"application/json"}));
-      }else{
-        fetch(SB+"/rest/v1/analytics_events",{method:"POST",keepalive:true,headers:{"Content-Type":"application/json",apikey:KEY,Authorization:"Bearer "+KEY,Prefer:"return=minimal"},body:body});
-      }
+      // fetch+keepalive, not sendBeacon: a JSON beacon triggers a CORS preflight that beacons can't do.
+      fetch(SB+"/rest/v1/analytics_events",{method:"POST",keepalive:true,headers:{"Content-Type":"application/json",apikey:KEY,Authorization:"Bearer "+KEY,Prefer:"return=minimal"},body:body}).catch(function(){});
     }catch(e){}
   }
   ping("landing_viewed");
